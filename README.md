@@ -2,5 +2,5 @@ Run
 
 ```
 dotnet tool restore
-mgcb-editor --register
+dotnet mgcb-editor --register
 ```

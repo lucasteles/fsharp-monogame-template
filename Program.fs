@@ -3,6 +3,6 @@ open MyGame
 
 [<EntryPoint; STAThread>]
 let main args =
-    use game = Game1()
+    use game = new Game1()
     game.Run()
     0
