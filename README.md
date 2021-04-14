@@ -1,6 +1,15 @@
-Run
+# fsharp-monogame-template
+
+## Configuration
 
 ```
 dotnet tool restore
-mgcb-editor --register
+dotnet mgcb-editor --register
+dotnet build
+```
+
+## Run
+
+```
+dotnet run
 ```

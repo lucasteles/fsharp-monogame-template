@@ -16,6 +16,10 @@ type Game1 () as this =
         this.IsMouseVisible <- true
 
     override this.Initialize() =
+        graphics.IsFullScreen <- false
+        graphics.PreferredBackBufferWidth <- 640
+        graphics.PreferredBackBufferHeight <- 480
+        graphics.ApplyChanges()
         base.Initialize()
     override this.LoadContent() =
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
