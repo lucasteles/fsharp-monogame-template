@@ -58,8 +58,19 @@ module GameLogic =
 
         { logo with Transform = newTransform }
 
-    let logoCenter logo =
-        Vector2(float32 logo.Texture.Bounds.Width, float32 logo.Texture.Bounds.Height) / 2f
+
+    let drawLogo (spriteBatch: SpriteBatch) logo =
+        let logoCenter = Vector2(float32 logo.Texture.Bounds.Width, float32 logo.Texture.Bounds.Height) / 2f
+        spriteBatch.Draw(
+            logo.Texture,
+            logo.Transform.Position,
+            logo.Texture.Bounds,
+            Color.White,
+            logo.Transform.Rotation,
+            logoCenter,
+            logo.Transform.Scale,
+            SpriteEffects.None, 0f)
+
 
 open GameLogic
 
@@ -97,16 +108,7 @@ type Game1() as this =
     override this.Draw gameTime =
         this.GraphicsDevice.Clear Color.LightGray
         spriteBatch.Begin()
-        spriteBatch.Draw(
-            logo.Texture,
-            logo.Transform.Position,
-            logo.Texture.Bounds,
-            Color.White,
-            logo.Transform.Rotation,
-            logoCenter logo,
-            logo.Transform.Scale,
-            SpriteEffects.None, 0f)
-
+        drawLogo spriteBatch logo
         spriteBatch.End()
 
         base.Draw(gameTime)
