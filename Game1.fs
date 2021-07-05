@@ -36,21 +36,21 @@ module GameLogic =
             Vector2(float32 game.Window.ClientBounds.Width / 2f,
                     float32 game.Window.ClientBounds.Height / 2f)
 
-        let transform = createTranform position 0f 1f
         {
             Texture =texture
-            Transform = transform
+            Transform = createTranform position 0f 1f
             Speed = 100f
         }
 
     let updateLogo logo (time: GameTime) =
-        let { Scale=scale; Rotation=rot; Position=pos } as currentTransform = logo.Transform
 
         let moveVector = Keyboard.GetState() |> movementVector
         let moveOffset = moveVector * logo.Speed * (float32 time.ElapsedGameTime.TotalSeconds)
 
+        let { Scale=scale; Rotation=rot; Position=pos } = logo.Transform
+
         let newTransform = {
-            currentTransform with
+            logo.Transform with
                 Rotation = rot + 0.01f
                 Scale = if (scale < 2f) then scale + 0.05f else scale
                 Position = pos + moveOffset
