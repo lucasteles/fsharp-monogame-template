@@ -1,78 +1,12 @@
 ﻿namespace MyGame
 
+open Garnet.Composition
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 
+open Events
 
-type Transform = { Rotation: float32; Scale: float32; Position: Vector2 }
-type FSharpLogo = { Texture: Texture2D; Transform: Transform; Speed: float32 }
-
-module GameLogic =
-    let createTranform pos rot scale = {
-        Position=pos
-        Scale = scale
-        Rotation = rot
-    }
-
-    let (|KeyDown|_|) k (state: KeyboardState) =
-        if state.IsKeyDown k then Some() else None
-
-    let movementVector = function
-        | KeyDown Keys.W & KeyDown Keys.A -> Vector2(-1.f, -1.f)
-        | KeyDown Keys.W & KeyDown Keys.D -> Vector2(1.f, -1.f)
-        | KeyDown Keys.S & KeyDown Keys.A -> Vector2(-1.f, 1.f)
-        | KeyDown Keys.S & KeyDown Keys.D -> Vector2(1.f, 1.f)
-        | KeyDown Keys.W -> Vector2(0.f, -1.f)
-        | KeyDown Keys.S -> Vector2(0.f, 1.f)
-        | KeyDown Keys.A -> Vector2(-1.f, 0.f)
-        | KeyDown Keys.D -> Vector2(1.f, -0.f)
-        | _ -> Vector2.Zero
-
-    let createLogo (game: Game) =
-        let texture = game.Content.Load<_>("logo")
-
-        let position =
-            Vector2(float32 game.Window.ClientBounds.Width / 2f,
-                    float32 game.Window.ClientBounds.Height / 2f)
-
-        {
-            Texture =texture
-            Transform = createTranform position 0f 1f
-            Speed = 100f
-        }
-
-    let updateLogo logo (time: GameTime) =
-
-        let moveVector = Keyboard.GetState() |> movementVector
-        let moveOffset = moveVector * logo.Speed * (float32 time.ElapsedGameTime.TotalSeconds)
-
-        let { Scale=scale; Rotation=rot; Position=pos } = logo.Transform
-
-        let newTransform = {
-            logo.Transform with
-                Rotation = rot + 0.01f
-                Scale = if (scale < 2f) then scale + 0.05f else scale
-                Position = pos + moveOffset
-        }
-
-        { logo with Transform = newTransform }
-
-
-    let drawLogo (spriteBatch: SpriteBatch) logo =
-        let logoCenter = Vector2(float32 logo.Texture.Bounds.Width, float32 logo.Texture.Bounds.Height) / 2f
-        spriteBatch.Draw(
-            logo.Texture,
-            logo.Transform.Position,
-            logo.Texture.Bounds,
-            Color.White,
-            logo.Transform.Rotation,
-            logoCenter,
-            logo.Transform.Scale,
-            SpriteEffects.None, 0f)
-
-
-open GameLogic
 
 type Game1() as this =
     inherit Game()
@@ -80,35 +14,34 @@ type Game1() as this =
     let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<_>
 
-    let mutable logo: FSharpLogo = Unchecked.defaultof<_>
+    // put all your system config here
+    let world =
+        Container()
+        |> GameLogic.configureWorld
 
     do
         this.Content.RootDirectory <- "Content"
         this.IsMouseVisible <- true
+
+    override this.LoadContent() =
+        spriteBatch <- new SpriteBatch(this.GraphicsDevice)
 
     override this.Initialize() =
         graphics.PreferredBackBufferWidth <- 1024
         graphics.PreferredBackBufferHeight <- 768
         graphics.ApplyChanges()
         base.Initialize()
-
-    override this.LoadContent() =
-        spriteBatch <- new SpriteBatch(this.GraphicsDevice)
-        logo <- createLogo this
+        world.Run (Game this)
 
     override this.Update gameTime =
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed
-            || Keyboard.GetState().IsKeyDown(Keys.Escape)) then
-            this.Exit()
-
-        logo <- updateLogo logo gameTime
-
+        world.Run { DeltaTime = gameTime.ElapsedGameTime; Game = this }
         base.Update gameTime
 
     override this.Draw gameTime =
         this.GraphicsDevice.Clear Color.LightGray
         spriteBatch.Begin()
-        drawLogo spriteBatch logo
+        world.Run { Time = gameTime.ElapsedGameTime
+                    SpriteBatch = spriteBatch }
         spriteBatch.End()
 
         base.Draw(gameTime)
