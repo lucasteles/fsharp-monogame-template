@@ -25,7 +25,7 @@ let movementVector = function
 
 let createLogo (game: Game) =
     {
-        Texture = game.Content.Load<_>("logo")
+        Texture = game.Content.Load("logo")
         Speed = 100f
     }
 
@@ -44,14 +44,13 @@ let updateLogo logo logoTransform deltaTime =
 
     let { Scale=scale; Rotation=rot; Position=pos } = logoTransform
 
-    let newTransform = {
+    {
         logoTransform with
             Rotation = rot + 0.01f
             Scale = if (scale < 2f) then scale + 0.04f else scale
             Position = pos + moveOffset
     }
 
-    newTransform
 
 
 let drawLogo (spriteBatch: SpriteBatch) logo transform =
@@ -79,7 +78,6 @@ let configureWorld (world: Container) =
     // update logo system
     world.On<Update>(
         fun e struct(tr: Transform, logo: FSharpLogo) ->
-            printfn "p: %A" tr.Position
             updateLogo logo tr (float32 e.DeltaTime.TotalSeconds)
 
         |> Join.update2
@@ -93,7 +91,7 @@ let configureWorld (world: Container) =
         |> Join.iter2
         |> Join.over world) |> ignore
 
-    // quit game syste
+    // quit game system
     world.On<Update>(
         fun e ->
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed
