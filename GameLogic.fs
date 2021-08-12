@@ -67,13 +67,21 @@ let drawLogo (spriteBatch: SpriteBatch) logo transform =
 
 let configureWorld (world: Container) =
 
-    // start logo system
-    world.On<Start>(
-        fun (Game game) ->
+    // load content
+    world.On(
+        fun (LoadContent game) ->
             world.Create()
-                .With(createLogo game)
-                .With(startPosition game)
+                 .With(createLogo game)
             |> ignore) |> ignore
+
+    // start logo system
+    world.On(
+        fun (Start game) struct(eid: Eid, logo: FSharpLogo) ->
+            let entity = world.Get eid
+            entity.Add (startPosition game)
+            eid
+        |> Join.update2
+        |> Join.over world) |> ignore
 
     // update logo system
     world.On<Update>(

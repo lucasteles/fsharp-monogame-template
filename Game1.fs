@@ -25,13 +25,14 @@ type Game1() as this =
 
     override this.LoadContent() =
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
+        world.Run (LoadContent this)
 
     override this.Initialize() =
         graphics.PreferredBackBufferWidth <- 1024
         graphics.PreferredBackBufferHeight <- 768
         graphics.ApplyChanges()
         base.Initialize()
-        world.Run (Game this)
+        world.Run (Start this)
 
     override this.Update gameTime =
         world.Run { DeltaTime = gameTime.ElapsedGameTime; Game = this }
