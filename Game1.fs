@@ -4,21 +4,29 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 
+type Transform =
+    { Rotation: single
+      Scale: single
+      Position: Vector2 }
 
-type Transform = { Rotation: float32; Scale: float32; Position: Vector2 }
-type FSharpLogo = { Texture: Texture2D; Transform: Transform; Speed: float32 }
+type FSharpLogo =
+    { Texture: Texture2D
+      Transform: Transform
+      Speed: single }
+
+module Transform =
+    let create pos rot scale =
+        { Position = pos
+          Scale = scale
+          Rotation = rot }
 
 module GameLogic =
-    let createTranform pos rot scale = {
-        Position=pos
-        Scale = scale
-        Rotation = rot
-    }
 
     let (|KeyDown|_|) k (state: KeyboardState) =
         if state.IsKeyDown k then Some() else None
 
-    let movementVector = function
+    let movementVector =
+        function
         | KeyDown Keys.W & KeyDown Keys.A -> Vector2(-1.f, -1.f)
         | KeyDown Keys.W & KeyDown Keys.D -> Vector2(1.f, -1.f)
         | KeyDown Keys.S & KeyDown Keys.A -> Vector2(-1.f, 1.f)
@@ -33,34 +41,36 @@ module GameLogic =
         let texture = game.Content.Load<_>("logo")
 
         let position =
-            Vector2(float32 game.Window.ClientBounds.Width / 2f,
-                    float32 game.Window.ClientBounds.Height / 2f)
+            Vector2(single game.Window.ClientBounds.Width / 2f, single game.Window.ClientBounds.Height / 2f)
 
-        {
-            Texture =texture
-            Transform = createTranform position 0f 1f
-            Speed = 100f
-        }
+        { Texture = texture
+          Transform = Transform.create position 0f 1f
+          Speed = 100f }
 
     let updateLogo logo (time: GameTime) =
 
         let moveVector = Keyboard.GetState() |> movementVector
-        let moveOffset = moveVector * logo.Speed * (float32 time.ElapsedGameTime.TotalSeconds)
 
-        let { Scale=scale; Rotation=rot; Position=pos } = logo.Transform
+        let moveOffset =
+            moveVector * logo.Speed * (float32 time.ElapsedGameTime.TotalSeconds)
 
-        let newTransform = {
-            logo.Transform with
+        let { Scale = scale
+              Rotation = rot
+              Position = pos } = logo.Transform
+
+        let newTransform =
+            { logo.Transform with
                 Rotation = rot + 0.01f
                 Scale = if (scale < 2f) then scale + 0.05f else scale
-                Position = pos + moveOffset
-        }
+                Position = pos + moveOffset }
 
         { logo with Transform = newTransform }
 
-
     let drawLogo (spriteBatch: SpriteBatch) logo =
-        let logoCenter = Vector2(float32 logo.Texture.Bounds.Width, float32 logo.Texture.Bounds.Height) / 2f
+        let logoCenter =
+            Vector2(float32 logo.Texture.Bounds.Width, float32 logo.Texture.Bounds.Height)
+            / 2f
+
         spriteBatch.Draw(
             logo.Texture,
             logo.Transform.Position,
@@ -69,8 +79,9 @@ module GameLogic =
             logo.Transform.Rotation,
             logoCenter,
             logo.Transform.Scale,
-            SpriteEffects.None, 0f)
-
+            SpriteEffects.None,
+            0f
+        )
 
 open GameLogic
 
@@ -79,7 +90,6 @@ type Game1() as this =
 
     let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<_>
-
     let mutable logo: FSharpLogo = Unchecked.defaultof<_>
 
     do
@@ -97,8 +107,10 @@ type Game1() as this =
         logo <- createLogo this
 
     override this.Update gameTime =
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed
-            || Keyboard.GetState().IsKeyDown(Keys.Escape)) then
+        if
+            GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed
+             || Keyboard.GetState().IsKeyDown(Keys.Escape)
+        then
             this.Exit()
 
         logo <- updateLogo logo gameTime
