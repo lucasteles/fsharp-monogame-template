@@ -11,7 +11,8 @@ type Game1() as this =
     let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<_>
 
-    let world = Container() |> Systems.configureWorld
+    let world = Container()
+    let systems = Systems.configureWorld world
 
     do
         this.Content.RootDirectory <- "Content"
@@ -20,6 +21,10 @@ type Game1() as this =
     override this.LoadContent() =
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
         world.Run(LoadContent this)
+
+    override this.UnloadContent() =
+        for sys in systems do
+            sys.Dispose()
 
     override this.Initialize() =
         graphics.PreferredBackBufferWidth <- 1024

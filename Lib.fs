@@ -7,6 +7,14 @@ open Microsoft.Xna.Framework.Input
 let (|KeyDown|_|) k (state: KeyboardState) =
     if state.IsKeyDown k then Some() else None
 
+[<Measure>]
+type rad
+
+[<Measure>]
+type second
+
+type Angle = float32<rad>
+
 module Vector2 =
     let up = Vector2(0.f, -1.f)
     let down = Vector2(0.f, 1.f)

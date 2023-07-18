@@ -6,7 +6,7 @@ open Microsoft.Xna.Framework.Input
 
 [<Struct>]
 type Transform =
-    { Rotation: single
+    { Rotation: Angle
       Scale: single
       Position: Vector2 }
 
@@ -16,7 +16,7 @@ type Logo = { Texture: Texture2D; Speed: single }
 module Transform =
     let center (game: Game) =
         { Position = Vector2(single game.Window.ClientBounds.Width / 2f, single game.Window.ClientBounds.Height / 2f)
-          Rotation = 0f
+          Rotation = 0f<rad>
           Scale = 0f }
 
 module Logo =
@@ -34,11 +34,11 @@ module Logo =
             logoTransform
 
         { logoTransform with
-            Rotation = rot + 0.01f
+            Rotation = rot + 0.01f<rad>
             Scale = if scale < 2f then scale + 0.04f else scale
             Position = pos + moveOffset }
 
-    let draw (spriteBatch: SpriteBatch) logo transform =
+    let draw (spriteBatch: SpriteBatch) transform logo =
         let logoCenter =
             Vector2(single logo.Texture.Bounds.Width, single logo.Texture.Bounds.Height)
             / 2f
@@ -48,7 +48,7 @@ module Logo =
             transform.Position,
             logo.Texture.Bounds,
             Color.White,
-            transform.Rotation,
+            single transform.Rotation,
             logoCenter,
             transform.Scale,
             SpriteEffects.None,

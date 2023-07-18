@@ -1,7 +1,6 @@
 module Events
 
 open System
-open Garnet.Composition
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
@@ -18,7 +17,11 @@ type LoadContent =
     member _.Data(LoadContent game) = game
 
 [<Struct>]
-type Update = { DeltaTime: TimeSpan; Game: Game }
+type Update =
+    { DeltaTime: TimeSpan
+      Game: Game }
+
+    member this.TotalSeconds = single this.DeltaTime.TotalSeconds
 
 [<Struct>]
 type Draw =
