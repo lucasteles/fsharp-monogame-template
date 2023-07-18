@@ -29,27 +29,29 @@ type Game1() as this =
         logo <- this.Content.Load<_>("logo")
 
     override this.Update gameTime =
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed
-            || Keyboard.GetState().IsKeyDown(Keys.Escape)) then
+        if
+            GamePad.GetState(PlayerIndex.One).Buttons.Back = ButtonState.Pressed
+            || Keyboard.GetState().IsKeyDown(Keys.Escape)
+        then
             this.Exit()
 
         rotation <- (rotation + 0.01f)
 
-        if (scale < 2f)
-        then scale <- scale + 0.05f
+        if scale < 2f then
+            scale <- scale + 0.05f
 
         base.Update gameTime
 
     override this.Draw gameTime =
         this.GraphicsDevice.Clear Color.LightGray
 
-        let logoCenter = Vector2(float32 logo.Bounds.Width, float32 logo.Bounds.Height) / 2f
+        let logoCenter = Vector2(single logo.Bounds.Width, single logo.Bounds.Height) / 2f
+
         let position =
-            Vector2(float32 this.Window.ClientBounds.Width / 2f,
-                    float32 this.Window.ClientBounds.Height / 2f)
+            Vector2(single this.Window.ClientBounds.Width / 2f, single this.Window.ClientBounds.Height / 2f)
 
         spriteBatch.Begin()
         spriteBatch.Draw(logo, position, logo.Bounds, Color.White, rotation, logoCenter, scale, SpriteEffects.None, 0f)
         spriteBatch.End()
 
-        base.Draw(gameTime)
+        base.Draw gameTime

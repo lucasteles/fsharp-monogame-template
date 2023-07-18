@@ -1,10 +1,9 @@
 # fsharp-monogame-template
 
-## Configuration
+## Build
 
 ```
 dotnet tool restore
-dotnet mgcb-editor --register
 dotnet build
 ```
 
@@ -12,4 +11,10 @@ dotnet build
 
 ```
 dotnet run
+```
+
+## Format
+
+```
+dotnet fantomas .
 ```
